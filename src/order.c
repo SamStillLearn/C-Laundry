@@ -31,7 +31,7 @@ void clearScreen() {
 
 // FITUR 1 : Terima Order Baru (Masuk)
 void createOrder() {
-    order newOrder;
+    struct Order newOrder;
     FILE *file = fopen("data/orders.dat", "ab"); 
 
     if (file == NULL) {
@@ -69,5 +69,11 @@ void createOrder() {
 
     newOrder.totalPrice = PricePerKg * newOrder.weight;
 
+    //Simpan Order ke File
+    fwrite(&newOrder, sizeof(struct Order), 1, file);
+    fclose(file);
     
+    printf("\n[SUKSES] Order berhasil disimpan \n",);
+    printf ("ID Order Anda: %s\n | Total: %.2f\n", newOrder.id, newOrder.totalPrice);
+
     
