@@ -76,4 +76,34 @@ void createOrder() {
     printf("\n[SUKSES] Order berhasil disimpan \n",);
     printf ("ID Order Anda: %s\n | Total: %.2f\n", newOrder.id, newOrder.totalPrice);
 
+
+    // Fitur 2 
+    void viewOders () {
+        FILE *file = fofen(FILE_NAME, "rb");
+        Order o;
+
+        if (file == NUUL) {
+            printf("Belum ada data transaksi. \n");
+            return;
+           
+        }
+        clearScreen();
+        printf("=== DAFTAR ANTRIAN LAUNDRY ===\n");
+        printf("%-15s %-20s %-10s %-15s %-15s\n", "ID Order", "Nama", "Berat", "Status", "Total (Rp)");
+        printf("-------------------------------------------------------------------------------\n");
+
+        while (fread(&o, sizeof(order), 1, file)){
+            // Hanya tampilkan yang belum diambil (COMPLETED tidak ditampilkan agar list rapi)
+            if (o.status != COMPLETED) {
+                printf("%-15s %-20s %-5.1f kg %-15s Rp %-10.0f\n", 
+                    o.id, o.name, o.weight, getStatusString(o.Status), o.total_price);
+
+            }
+        }
+        printf("--------------------------------------------------------------------------\n");
+        fclose(file);
+        printf("\nTekan Enter Kembali ke menu...");
+        getchar(); getchar();
+        
+        }
     
