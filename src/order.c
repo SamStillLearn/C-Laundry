@@ -31,7 +31,7 @@ void clearScreen() {
 
 // FITUR 1 : Terima Order Baru (Masuk)
 void createOrder() {
-    struct Order newOrder;
+    Order newOrder;
     FILE *file = fopen("data/orders.dat", "ab"); 
 
     if (file == NULL) {
@@ -56,7 +56,7 @@ void createOrder() {
 
     //Set Default Status & Date
     newOrder.status = PENDING;
-    getCurrentDate(newOrder.date_In);
+    getCurrentDate(newOrder.date_in);
 
     //Hitung Harga Berdasarkan Jenis Layanan & Berat
     float PricePerKg;
@@ -70,10 +70,9 @@ void createOrder() {
     newOrder.totalPrice = PricePerKg * newOrder.weight;
 
     //Simpan Order ke File
-    fwrite(&newOrder, sizeof(struct Order), 1, file);
+    fwrite(&newOrder, sizeof(Order), 1, file);
     fclose(file);
     
-    printf("\n[SUKSES] Order berhasil disimpan \n",);
+    printf("\n[SUKSES] Order berhasil disimpan \n");
     printf ("ID Order Anda: %s\n | Total: %.2f\n", newOrder.id, newOrder.totalPrice);
-
-    
+}
