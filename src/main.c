@@ -33,15 +33,15 @@ int main() {
             case 1:
                 createOrder();
                 break;
-            case 2:
-                updateStatus();
-                break;
-            case 3:
-                viewOrders();
-                break;
-            case 4:
-                completeOrder();
-                break;
+            // case 2:
+            //     updateStatus();
+            //     break;
+            // case 3:
+            //     viewOrders();
+            //     break;
+            // case 4:
+            //     completeOrder();
+            //     break;
             case 5:
                 printf("\nTerima kasih telah menggunakan aplikasi ini.\n");
                 return 0;

@@ -45,14 +45,14 @@ void createOrder() {
     
     // Input Nama Pelanggan
     printf("Nama Pelanggan : "); scanf(" %[^\n]", newOrder.customerName);    
-    printf(" NO HP (62...) : "); scanf(" %[^\n]", newOrder.phoneNumber);
+    printf("NO HP (62...) : "); scanf(" %[^\n]", newOrder.phoneNumber);
     printf ("Berat (KG) : "); scanf ("%f", &newOrder.weight);
 
-    printf ("Jenis Layanan:\n. 1. Cuci Kering (Rp 4000/KG)\n 2. Cuci Komplit (Rp 6000/KG)\n 3. Express (Rp 10000/KG)\nPilihan Anda [1-3]: ");
+    printf ("Jenis Layanan:\n.1. Cuci Kering (Rp 4000/KG)\n2. Cuci Komplit (Rp 6000/KG)\n3. Express (Rp 10000/KG)\nPilihan Anda [1-3]: ");
     scanf ("%d", (int*)&newOrder.serviceType);
 
     //Generate ID Unik (Format LND-TimeStamp)
-    sprintf (newOrder .id, "LND-%ld", time (NULL));
+    sprintf (newOrder.id, "LND-%ld", time (NULL));
 
     //Set Default Status & Date
     newOrder.status = PENDING;
@@ -74,5 +74,7 @@ void createOrder() {
     fclose(file);
     
     printf("\n[SUKSES] Order berhasil disimpan \n");
-    printf ("ID Order Anda: %s\n | Total: %.2f\n", newOrder.id, newOrder.totalPrice);
+    printf (" ID Order Anda: %s\n Total: %.2f\n", newOrder.id, newOrder.totalPrice);
+    printf("\nTekan Enter kembali ke menu...");
+    getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
 }
