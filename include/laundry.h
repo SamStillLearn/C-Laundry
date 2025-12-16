@@ -22,10 +22,10 @@ typedef enum {
 // Struktur Data Utama
 typedef struct {
     char id[20];
-    char name[50];
-    char phone[15];
+    char customerName[50];
+    char phoneNumber[15];
     float weight;
-    int service_type; // 1: Cuci Kering, 2: Cuci Komplit, 3: Express, 4: Coming soon fitur lain
+    int serviceType; // 1: Cuci Kering, 2: Cuci Komplit, 3: Express, 4: Coming soon fitur lain
     float total_price;
     Status status;
     char date_in[20];
