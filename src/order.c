@@ -79,7 +79,7 @@ void createOrder() {
     getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
 }
 // fitur 2 update status(order)
-void updateStatus() {
+void updateStatus(){
     FILE *file = fopen(FILE_NAME, "rb");
     FILE *temp = fopen(TEMP_FILE, "wb");
     Order uS; //us adalah order update status
@@ -104,8 +104,8 @@ void updateStatus() {
             
             // Kirim Notifikasi Update ke whatsapp
             char pesan[200];
-            sprintf(pesan, "Halo %s.%%0A"
-                "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
+            // sprintf(pesan, "Halo %s.%%0A"
+            //     "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
             //sendWhatsApp(uS.phoneNumber, pesan);
         }
         fwrite(&uS, sizeof(Order), 1, temp);
