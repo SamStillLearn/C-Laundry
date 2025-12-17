@@ -28,7 +28,7 @@ typedef struct {
     int serviceType; // 1: Cuci Kering, 2: Cuci Komplit, 3: Express, 4: Coming soon fitur lain
     float totalPrice;
     Status status;
-    char date_in[20];
+    char dateIn[20];
 } Order;
 
 // Prototype Fungsi (Daftar Isi Fitur)

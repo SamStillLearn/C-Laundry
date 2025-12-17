@@ -56,7 +56,7 @@ void createOrder() {
 
     //Set Default Status & Date
     newOrder.status = PENDING;
-    getCurrentDate(newOrder.date_in);
+    getCurrentDate(newOrder.dateIn);
 
     //Hitung Harga Berdasarkan Jenis Layanan & Berat
     float PricePerKg;
