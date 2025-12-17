@@ -77,4 +77,51 @@ void createOrder() {
     printf (" ID Order Anda: %s\n Total: %.2f\n", newOrder.id, newOrder.totalPrice);
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
+
+// fitur 2 update status(order)
+void updateStatus(){
+    FILE *file = fopen(FILE_NAME, "rb");
+    FILE *temp = fopen(TEMP_FILE, "wb");
+    Order uS; //us adalah order update status
+    char namaCustomer[20];
+    int found = 0;
+
+    if (!file || !temp) return;
+
+    clearScreen();
+    printf("=== UPDATE STATUS PENGERJAAN ===\n");
+    printf("Masukkan ID Order: "); scanf("%s", namaCustomer);
+      while (fread(&uS, sizeof(Order), 1, file)) {
+        if (strcmp(uS.customerName, namaCustomer) == 0) {
+            found = 1;
+            printf("\nData Ditemukan: %s (%s)\n", uS.customerName, getstatusString(uS.status));
+            printf("Update Status ke:\n1. DICUCI\n2. DISETRIKA\n3. SIAP DIAMBIL\nPilih: ");
+            int pil;
+            scanf("%d", &pil);
+             if (pil == 1) uS.status = WASHING;
+            else if (pil == 2) uS.status = IRONING;
+            else if (pil == 3) uS.status = READY;
+            
+            // Kirim Notifikasi Update ke whatsapp
+            char pesan[200];
+            sprintf(pesan, "Halo %s.%%0A"
+                "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
+            sendWhatsApp(uS.phoneNumber, pesan);
+        }
+        fwrite(&uS, sizeof(Order), 1, temp);
+    }
+
+    fclose(file);
+    fclose(temp);
+
+    remove(FILE_NAME);
+    rename(TEMP_FILE, FILE_NAME);
+
+    if (found) printf("\n[SUCCESS] Status berhasil diupdate!\n");
+    else printf("\n[ERROR] ID tidak ditemukan.\n");
+    
+    getchar(); getchar();
+}
+
+
 }
