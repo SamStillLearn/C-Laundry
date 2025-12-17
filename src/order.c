@@ -8,7 +8,7 @@ void getCurrentDate(char *buffer) {
 }
 
 //mendapatkanKonversiEnumKeStringUntukTampilan : Helper function to convert status enum to string for display
-const char* getstatusString(Status s) {
+const char* getStatusString(Status s) {
     switch (s) {
         case PENDING: return "MENUNGGU";
         case WASHING: return "DICUCI";
@@ -78,6 +78,7 @@ void createOrder() {
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
 }
+<<<<<<< HEAD
 // fitur 2 update status(order)
 void updateStatus() {
     FILE *file = fopen(FILE_NAME, "rb");
@@ -125,3 +126,229 @@ void updateStatus() {
 
 
 
+=======
+
+// FITUR 2 : Lihat Daftar Antrian
+void viewOrders() {
+    FILE *file = fopen("data/orders.dat", "rb");
+    Order order;
+    int found = 0;
+
+    if (file == NULL) {
+        printf("Belum ada data order atau gagal membuka file.\n");
+        printf("Tekan Enter untuk kembali ke menu...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("===== DAFTAR ANTRIAN LAUNDRY =====\n");
+    printf("%-15s %-20s %-15s %-8s %-12s %-15s %-12s\n", 
+           "ID", "Nama", "HP", "Berat", "Layanan", "Status", "Total");
+    printf("================================================================================\n");
+
+    while (fread(&order, sizeof(Order), 1, file)) {
+        found = 1;
+        const char* serviceStr;
+        switch(order.serviceType) {
+            case 1: serviceStr = "Cuci Kering"; break;
+            case 2: serviceStr = "Cuci Komplit"; break;
+            case 3: serviceStr = "Express"; break;
+            default: serviceStr = "Unknown"; break;
+        }
+
+        printf("%-15s %-20s %-15s %-8.1f %-12s %-15s Rp%.0f\n",
+               order.id, order.customerName, order.phoneNumber, 
+               order.weight, serviceStr, getStatusString(order.status), order.totalPrice);
+    }
+
+    if (!found) {
+        printf("Belum ada order yang terdaftar.\n");
+    }
+
+    fclose(file);
+    printf("\nTekan Enter untuk kembali ke menu...");
+    getchar(); getchar();
+}
+
+// FITUR 3 : Update Status Pengerjaan
+void updateStatus() {
+    FILE *file = fopen("data/orders.dat", "rb");
+    FILE *tempFile = fopen("data/temp.dat", "wb");
+    Order order;
+    char searchId[20];
+    int found = 0;
+
+    if (file == NULL) {
+        printf("Belum ada data order atau gagal membuka file.\n");
+        printf("Tekan Enter untuk kembali ke menu...");
+        getchar(); getchar();
+        return;
+    }
+
+    if (tempFile == NULL) {
+        printf("Gagal membuat file temporary.\n");
+        fclose(file);
+        printf("Tekan Enter untuk kembali ke menu...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("===== UPDATE STATUS PENGERJAAN =====\n");
+    printf("Masukkan ID Order: ");
+    scanf(" %[^\n]", searchId);
+
+    while (fread(&order, sizeof(Order), 1, file)) {
+        if (strcmp(order.id, searchId) == 0) {
+            found = 1;
+            printf("\nOrder ditemukan:\n");
+            printf("ID: %s\n", order.id);
+            printf("Nama: %s\n", order.customerName);
+            printf("Status saat ini: %s\n", getStatusString(order.status));
+            
+            printf("\nPilih status baru:\n");
+            printf("0. MENUNGGU\n");
+            printf("1. SEDANG DICUCI\n");
+            printf("2. SEDANG DISETRIKA\n");
+            printf("3. SIAP DIAMBIL\n");
+            printf("Pilihan [0-3]: ");
+            
+            int newStatus;
+            scanf("%d", &newStatus);
+            
+            if (newStatus >= 0 && newStatus <= 3) {
+                order.status = (Status)newStatus;
+                printf("\n[SUKSES] Status berhasil diupdate ke: %s\n", getStatusString(order.status));
+            } else {
+                printf("\n[ERROR] Status tidak valid!\n");
+            }
+        }
+        fwrite(&order, sizeof(Order), 1, tempFile);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    if (found) {
+        remove("data/orders.dat");
+        rename("data/temp.dat", "data/orders.dat");
+    } else {
+        remove("data/temp.dat");
+        printf("\n[ERROR] Order dengan ID '%s' tidak ditemukan!\n", searchId);
+    }
+
+    printf("\nTekan Enter untuk kembali ke menu...");
+    getchar(); getchar();
+}
+
+// FITUR 4 : Pengambilan & Pembayaran (Complete Order)
+void completeOrder() {
+    FILE *file = fopen("data/orders.dat", "rb");
+    FILE *tempFile = fopen("data/temp.dat", "wb");
+    Order order;
+    char searchId[20];
+    int found = 0;
+
+    if (file == NULL) {
+        printf("Belum ada data order atau gagal membuka file.\n");
+        printf("Tekan Enter untuk kembali ke menu...");
+        getchar(); getchar();
+        return;
+    }
+
+    if (tempFile == NULL) {
+        printf("Gagal membuat file temporary.\n");
+        fclose(file);
+        printf("Tekan Enter untuk kembali ke menu...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("===== PENGAMBILAN & PEMBAYARAN =====\n");
+    printf("Masukkan ID Order: ");
+    scanf(" %[^\n]", searchId);
+
+    while (fread(&order, sizeof(Order), 1, file)) {
+        if (strcmp(order.id, searchId) == 0) {
+            found = 1;
+            printf("\n===== DETAIL ORDER =====\n");
+            printf("ID Order    : %s\n", order.id);
+            printf("Nama        : %s\n", order.customerName);
+            printf("No HP       : %s\n", order.phoneNumber);
+            printf("Berat       : %.1f KG\n", order.weight);
+            
+            const char* serviceStr;
+            switch(order.serviceType) {
+                case 1: serviceStr = "Cuci Kering"; break;
+                case 2: serviceStr = "Cuci Komplit"; break;
+                case 3: serviceStr = "Express"; break;
+                default: serviceStr = "Unknown"; break;
+            }
+            printf("Layanan     : %s\n", serviceStr);
+            printf("Status      : %s\n", getStatusString(order.status));
+            printf("Tanggal     : %s\n", order.date_in);
+            printf("Total Bayar : Rp %.0f\n", order.totalPrice);
+            printf("========================\n");
+
+            if (order.status == COMPLETED) {
+                printf("\n[INFO] Order ini sudah selesai/diambil sebelumnya.\n");
+            } else if (order.status != READY) {
+                printf("\n[PERINGATAN] Order belum siap diambil!\n");
+                printf("Status saat ini: %s\n", getStatusString(order.status));
+                printf("Apakah tetap ingin menyelesaikan? (y/n): ");
+                
+                char confirm;
+                scanf(" %c", &confirm);
+                
+                if (confirm != 'y' && confirm != 'Y') {
+                    fwrite(&order, sizeof(Order), 1, tempFile);
+                    continue;
+                }
+            }
+
+            printf("\nKonfirmasi pembayaran Rp %.0f? (y/n): ", order.totalPrice);
+            char payConfirm;
+            scanf(" %c", &payConfirm);
+            
+            if (payConfirm == 'y' || payConfirm == 'Y') {
+                order.status = COMPLETED;
+                printf("\n[SUKSES] Pembayaran berhasil!\n");
+                printf("Order ID %s telah selesai.\n", order.id);
+                printf("Terima kasih atas kepercayaan Anda!\n");
+                
+                // Optional: Send WhatsApp notification
+                char message[200];
+                sprintf(message, "Terima kasih! Order %s telah selesai. Total: Rp%.0f", 
+                       order.id, order.totalPrice);
+                sendWhatsApp(order.phoneNumber, message);
+            } else {
+                printf("\n[BATAL] Pembayaran dibatalkan.\n");
+            }
+        }
+        fwrite(&order, sizeof(Order), 1, tempFile);
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    if (found) {
+        remove("data/orders.dat");
+        rename("data/temp.dat", "data/orders.dat");
+    } else {
+        remove("data/temp.dat");
+        printf("\n[ERROR] Order dengan ID '%s' tidak ditemukan!\n", searchId);
+    }
+
+    printf("\nTekan Enter untuk kembali ke menu...");
+    getchar(); getchar();
+}
+
+// FITUR 5 : Kirim WhatsApp (Placeholder)
+void sendWhatsApp(char* phone, char* message) {
+    printf("\n[WhatsApp] Mengirim pesan ke %s:\n", phone);
+    printf("Pesan: %s\n", message);
+    // Implementasi actual WhatsApp API bisa ditambahkan di sini
+}
+>>>>>>> 1da79ea6d0b3c1674d622f7f0226d1d6d90817ae
