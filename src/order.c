@@ -46,9 +46,9 @@ void createOrder() {
     // Input Nama Pelanggan
     printf("Nama Pelanggan : "); scanf(" %[^\n]", newOrder.customerName);    
     printf("NO HP (62...) : "); scanf(" %[^\n]", newOrder.phoneNumber);
-    printf ("Berat (KG) : "); scanf ("%f", &newOrder.weight);
+    printf("Berat (KG) : "); scanf ("%f", &newOrder.weight);
 
-    printf ("Jenis Layanan:\n.1. Cuci Kering (Rp 4000/KG)\n2. Cuci Komplit (Rp 6000/KG)\n3. Express (Rp 10000/KG)\nPilihan Anda [1-3]: ");
+    printf ("Jenis Layanan:\n1. Cuci + Setrika\n2. Cuci/Setrika Saja\n3. Bedcover\n4. Selimut\n5. Gorden permeter\n6. Boneka\n Pilihan Anda [1-3]: ");
     scanf ("%d", (int*)&newOrder.serviceType);
 
     //Generate ID Unik (Format LND-TimeStamp)
@@ -78,7 +78,7 @@ void createOrder() {
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
 }
-// fitur 2 update status(order)
+// Fitur 2 Update Status(order)
 void updateStatus(){
     FILE *file = fopen(FILE_NAME, "rb");
     FILE *temp = fopen(TEMP_FILE, "wb");
