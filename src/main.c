@@ -39,9 +39,9 @@ int main() {
             case 3:
                 viewOrders();
                 break;
-            //case 4:
-                //completeOrder();
-                //break;
+            case 4:
+                completeOrder();
+                break;
             case 5:
                 printf("\nTerima kasih telah menggunakan aplikasi ini.\n");
                 return 0;

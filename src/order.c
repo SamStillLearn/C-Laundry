@@ -211,6 +211,65 @@ void viewOrders() {
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar();
 }
+
+// --- FITUR 4 : SELESAIKAN ORDER (CARI NAMA) ---
+void completeOrder() {
+    FILE *file = fopen(FILE_NAME, "rb");
+    FILE *temp = fopen(TEMP_FILE, "wb");
+    Order order;
+    char searchName[50];
+    int found = 0;
+
+    if (!file || !temp) {
+        printf("Gagal membuka file data.\n");
+        printf("Tekan Enter...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("=== AMBIL / SELESAIKAN ORDER ===\n");
+    printf("Masukkan Nama Customer: ");
+    scanf(" %[^\n]", searchName);   // ← BISA SPASI, AMAN
+
+    while (fread(&order, sizeof(Order), 1, file)) {
+
+        if (strcmp(order.customerName, searchName) == 0 && order.status != COMPLETED) {
+            found = 1;
+
+            printf("\nData Order Ditemukan\n");
+            printf("--------------------------\n");
+            printf("ID     : %s\n", order.id);
+            printf("Nama   : %s\n", order.customerName);
+            printf("Status : %s\n", getstatusString(order.status));
+            printf("Total  : Rp %.0f\n", order.totalPrice);
+
+            if (order.status != READY) {
+                printf("\n[PERINGATAN] Laundry belum siap diambil!\n");
+            } else {
+                order.status = COMPLETED;
+                printf("\n[SUKSES] Laundry telah diambil & order diselesaikan.\n");
+            }
+        }
+
+        fwrite(&order, sizeof(Order), 1, temp);
+    }
+
+    fclose(file);
+    fclose(temp);
+
+    remove(FILE_NAME);
+    rename(TEMP_FILE, FILE_NAME);
+
+    if (!found) {
+        printf("\n[ERROR] Nama customer tidak ditemukan.\n");
+    }
+
+    printf("\nTekan Enter kembali ke menu...");
+    getchar(); getchar();
+}
+
+
 // fitur 5 sendwhatsapp
 void sendWhatsApp (char* phone, char* message) {
     char url[512];
