@@ -149,7 +149,7 @@ void updateStatus(){
 
     clearScreen();
     printf("=== UPDATE STATUS PENGERJAAN ===\n");
-    printf("Masukkan Nama Customer: "); scanf("%s", namaCustomer);
+    printf("Masukkan Nama Customer: "); scanf(" %[^\n]", namaCustomer);
       while (fread(&uS, sizeof(Order), 1, file)) {
         if (strcmp(uS.customerName, namaCustomer) == 0) {
             found = 1;
