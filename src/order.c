@@ -29,54 +29,100 @@ void clearScreen() {
     #endif
 }
 
-// FITUR 1 : Terima Order Baru (Masuk)
+// FITUR 1: Terima Order Baru
 void createOrder() {
     Order newOrder;
-    FILE *file = fopen("data/orders.dat", "ab"); 
+    FILE *file = fopen(FILE_NAME, "ab"); 
 
     if (file == NULL) {
         printf("Gagal membuka file data orders.\n");
-        printf("Tekan Enter untuk kembali ke menu...");
+        printf("Tekan Enter untuk kembali...");
         getchar(); getchar();
         return;
     }
+
     clearScreen();
-    printf("===== TERIMA ORDER BARU =====\n");
+    printf("===== TERIMA ORDER BARU RUMAH LAUNDRY 76 =====\n");
     
-    // Input Nama Pelanggan
     printf("Nama Pelanggan : "); scanf(" %[^\n]", newOrder.customerName);    
-    printf("NO HP (62...) : "); scanf(" %[^\n]", newOrder.phoneNumber);
-    printf ("Berat (KG) : "); scanf ("%f", &newOrder.weight);
+    printf("NO HP (62...)  : "); scanf(" %[^\n]", newOrder.phoneNumber);
 
-    printf ("Jenis Layanan:\n.1. Cuci Kering (Rp 4000/KG)\n2. Cuci Komplit (Rp 6000/KG)\n3. Express (Rp 10000/KG)\nPilihan Anda [1-3]: ");
-    scanf ("%d", (int*)&newOrder.serviceType);
+    printf("\n--- DAFTAR LAYANAN ---\n");
+    printf("1. Cuci + Setrika\n2. Cuci / Setrika Saja\n3. Bed Cover\n4. Sprei\n5. Selimut\n6. Gorden\n7. Boneka\n");
+    printf("Pilihan Anda [1-7]: ");
+    scanf("%d", (int*)&newOrder.serviceType);
 
-    //Generate ID Unik (Format LND-TimeStamp)
-    sprintf (newOrder.id, "LND-%ld", time (NULL));
+    float pricePerUnit = 0;
+    int sub;
 
-    //Set Default Status & Date
+    switch(newOrder.serviceType) {
+        case 1: // Cuci + Setrika
+            printf("\n1. Reguler 2 Hari (8K)\n2. Reguler 3 Hari (6K)\n3. Express 1 Hari (10K)\n4. Kilat 3 Jam (20K)\nPilih: ");
+            scanf("%d", &sub);
+            if(sub==1) pricePerUnit=8000; else if(sub==2) pricePerUnit=6000;
+            else if(sub==3) pricePerUnit=10000; else pricePerUnit=20000;
+            printf("Berat (KG): ");
+            break;
+        case 2: // Cuci Saja
+            printf("\n1. Reguler 2 Hari (6K)\n2. Reguler 3 Hari (5K)\n3. Express 1 Hari (8K)\nPilih: ");
+            scanf("%d", &sub);
+            if(sub==1) pricePerUnit=6000; else if(sub==2) pricePerUnit=5000; else pricePerUnit=8000;
+            printf("Berat (KG): ");
+            break;
+        case 3: // Bed Cover
+            printf("\n1. Kecil (20K)\n2. Besar (25K)\nPilih: ");
+            scanf("%d", &sub);
+            pricePerUnit = (sub==1) ? 20000 : 25000;
+            printf("Jumlah (Pcs): ");
+            break;
+        case 4: // Sprei
+            printf("\n--- SPREI (3 HARI) ---\n");
+            printf("1. Kecil (8K)\n2. Besar (10K)\nPilih Ukuran: ");
+            scanf("%d", &sub);
+            pricePerUnit = (sub == 1) ? 8000 : 10000;
+            printf("Jumlah (Pcs): ");
+            break;
+
+        case 5: // Selimut
+            printf("\n--- SELIMUT (3 HARI) ---\n");
+            printf("1. Kecil (10K)\n2. Besar (20K)\nPilih Ukuran: ");
+            scanf("%d", &sub);
+            pricePerUnit = (sub == 1) ? 10000 : 20000;
+            printf("Jumlah (Pcs): ");
+            break;
+
+        case 6: // Gorden
+            printf("\n--- GORDEN (3 HARI) ---\n");
+            printf("1. Tipis (7K)\n2. Tebal (9K)\nPilih Jenis: ");
+            scanf("%d", &sub);
+            pricePerUnit = (sub == 1) ? 7000 : 9000;
+            printf("Jumlah (Meter): ");
+            break;
+
+        case 7: // Boneka
+            printf("\n1. Kecil (12K)\n2. Sedang/Besar (25K)\n3. Jumbo (60K)\nPilih: ");
+            scanf("%d", &sub);
+            if(sub==1) pricePerUnit=12000; else if(sub==2) pricePerUnit=25000; else pricePerUnit=60000;
+            printf("Jumlah (Pcs): ");
+            break;
+        default:
+            pricePerUnit = 5000;
+            printf("Jumlah/Berat: ");
+    }
+    scanf("%f", &newOrder.weight);
+
+    sprintf(newOrder.id, "LND-%ld", (long)time(NULL));
     newOrder.status = PENDING;
     getCurrentDate(newOrder.date_in);
+    newOrder.totalPrice = pricePerUnit * newOrder.weight;
 
-    //Hitung Harga Berdasarkan Jenis Layanan & Berat
-    float PricePerKg;
-    if (newOrder.serviceType == 1) 
-        PricePerKg = 4000.0;
-    else if (newOrder.serviceType == 2) 
-        PricePerKg = 6000.0;
-    else 
-        PricePerKg = 10000.0;
-
-    newOrder.totalPrice = PricePerKg * newOrder.weight;
-
-    //Simpan Order ke File
     fwrite(&newOrder, sizeof(Order), 1, file);
     fclose(file);
     
-    printf("\n[SUKSES] Order berhasil disimpan \n");
-    printf (" ID Order Anda: %s\n Total: %.2f\n", newOrder.id, newOrder.totalPrice);
+    printf("\n[SUKSES] Order berhasil disimpan!\n");
+    printf(" ID Order : %s\n Total    : Rp %.0f\n", newOrder.id, newOrder.totalPrice);
     printf("\nTekan Enter kembali ke menu...");
-    getchar(); getchar(); // Jangan lupa diakhirin getchar() yaw
+    getchar(); getchar();
 }
 // fitur 2 update status(order)
 void updateStatus(){
