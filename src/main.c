@@ -36,9 +36,9 @@ int main() {
             case 2:
                 updateStatus();
                 break;
-            //case 3:
-                //viewOrders();
-                //break;
+            case 3:
+                viewOrders();
+                break;
             //case 4:
                 //completeOrder();
                 //break;

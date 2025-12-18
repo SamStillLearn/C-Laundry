@@ -122,4 +122,33 @@ void updateStatus(){
     
     getchar(); getchar();
 }
-   
+
+// --- FITUR 3: LIHAT SEMUA DATA ---
+void viewOrders() {
+    FILE *file = fopen(FILE_NAME, "rb");
+    Order viewOrders;
+
+    if (!file) {
+        printf("Belum ada data transaksi.\n");
+        return;
+    }
+
+    clearScreen();
+    printf("=== DAFTAR ANTRIAN LAUNDRY ===\n");
+    printf("%-15s %-20s %-10s %-15s %15s\n", "ID Order", "Nama", "Berat", "Status", "Total (Rp)");
+    printf("-----------------------------------------------------------------------------\n");
+
+    while (fread(&viewOrders, sizeof(Order), 1, file)) {
+        // Hanya tampilkan yang belum diambil (COMPLETED tidak di tampilkan agar list rapi)
+        if (viewOrders.status != COMPLETED) {
+            printf("%-15s %-20s %-5.1f kg  %-15s Rp %-10.0f\n",
+                viewOrders.id, viewOrders.customerName, viewOrders.weight, getstatusString(viewOrders.status), viewOrders.totalPrice);
+
+
+        }
+    }
+    printf("----------------------------------------------------------------------------------\n");
+    fclose(file);
+    printf("\nTekan Enter kembali ke menu...");
+    getchar(); getchar();
+}
