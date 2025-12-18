@@ -123,7 +123,20 @@ void createOrder() {
     printf(" ID Order : %s\n Total    : Rp %.0f\n", newOrder.id, newOrder.totalPrice);
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar();
-}
+
+    // Integrasi WhatsApp (Metode Buka Browser)
+    char message[200];
+    sprintf(message, "Halo *%s*, laundry Anda diterima.%%0A"
+                 "ID: *%s*%%0A"
+                 "Total: Rp %.0f%%0A"
+                 "Status: MENUNGGU.", 
+            newOrder.customerName, newOrder.id, newOrder.totalPrice);
+    sendWhatsApp(newOrder.phoneNumber, message);
+
+    printf("\nTekan Enter kembali ke menu...");
+    getchar(); getchar();
+    }
+
 // fitur 2 update status(order)
 void updateStatus(){
     FILE *file = fopen(FILE_NAME, "rb");
@@ -149,10 +162,10 @@ void updateStatus(){
             else if (pil == 3) uS.status = READY;
             
             // Kirim Notifikasi Update ke whatsapp
-            char pesan[200];
-            // sprintf(pesan, "Halo %s.%%0A"
-            //     "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
-            //sendWhatsApp(uS.phoneNumber, pesan);
+            char message[200];
+            sprintf(message, "Halo %s.%%0A"
+               "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
+            sendWhatsApp(uS.phoneNumber, message);
         }
         fwrite(&uS, sizeof(Order), 1, temp);
     }
@@ -197,4 +210,33 @@ void viewOrders() {
     fclose(file);
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar();
+}
+// fitur 5 sendwhatsapp
+void sendWhatsApp (char* phone, char* message) {
+    char url[512];
+    char command[600];
+    char cleanMsg[300];
+    
+    // Ganti spasi dengan %20 manual (Sederhana)
+    int j = 0;
+    for(int i = 0; message[i] != '\0'; i++) {
+        if(message[i] == ' ') {
+            cleanMsg[j++] = '%'; cleanMsg[j++] = '2'; cleanMsg[j++] = '0';
+        } else {
+            cleanMsg[j++] = message[i];
+        }
+    }
+    cleanMsg[j] = '\0';
+
+    sprintf(url, "https://wa.me/%s?text=%s", phone, cleanMsg);
+    
+    printf("\n[SYSTEM] Membuka WhatsApp untuk kirim pesan...\n");
+    
+    #ifdef _WIN32
+        sprintf(command, "start \"\" \"%s\"", url);
+    #else
+        sprintf(command, "xdg-open \"%s\"", url);
+    #endif
+    
+    system(command);
 }
