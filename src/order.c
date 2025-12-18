@@ -16,8 +16,8 @@ const char* getstatusString(Status s) {
         case READY: return "SIAP DIAMBIL";
         case COMPLETED: return "SELESAI";
         default: return "UNKNOWN";
-    }
 
+    }
 }
 
 //BersihkanLayar : Function to clear the console screen
@@ -197,4 +197,66 @@ void viewOrders() {
     fclose(file);
     printf("\nTekan Enter kembali ke menu...");
     getchar(); getchar();
+}
+
+// --- FITUR 4 : SELESAIKAN ORDER (AMBIL LAUNDRY) ---
+void completeOrder() {
+    FILE *file = fopen(FILE_NAME, "rb");
+    FILE *temp = fopen(TEMP_FILE, "wb");
+    Order order;
+    char searchId[30];
+    int found = 0;
+
+    if (file == NULL || temp == NULL) {
+        printf("Gagal membuka file data.\n");
+        printf("Tekan Enter untuk kembali...");
+        getchar(); getchar();
+        return;
+    }
+
+    clearScreen();
+    printf("=== AMBIL / SELESAIKAN ORDER ===\n");
+    printf("Masukkan ID Order: ");
+
+    getchar(); // bersihkan newline sisa input sebelumnya
+    fgets(searchId, sizeof(searchId), stdin);
+    searchId[strcspn(searchId, "\n")] = 0; // hapus \n
+
+    while (fread(&order, sizeof(Order), 1, file)) {
+
+        if (strcmp(order.id, searchId) == 0) {
+            found = 1;
+
+            printf("\nData Order Ditemukan\n");
+            printf("--------------------------\n");
+            printf("Nama   : %s\n", order.customerName);
+            printf("Status : %s\n", getstatusString(order.status));
+            printf("Total  : Rp %.0f\n", order.totalPrice);
+
+            // Validasi status
+            if (order.status != READY) {
+                printf("\n[PERINGATAN] Laundry belum siap diambil!\n");
+                printf("Status saat ini: %s\n", getstatusString(order.status));
+            } else {
+                order.status = COMPLETED;
+                printf("\n[SUKSES] Laundry telah diambil & order diselesaikan.\n");
+            }
+        }
+
+        // Tetap tulis ulang semua data (baik diubah atau tidak)
+        fwrite(&order, sizeof(Order), 1, temp);
+    }
+
+    fclose(file);
+    fclose(temp);
+
+    remove(FILE_NAME);
+    rename(TEMP_FILE, FILE_NAME);
+
+    if (!found) {
+        printf("\n[ERROR] ID Order tidak ditemukan.\n");
+    }
+
+    printf("\nTekan Enter kembali ke menu...");
+    getchar();
 }
