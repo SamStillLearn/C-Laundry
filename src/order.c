@@ -29,6 +29,23 @@ void clearScreen() {
     #endif
 }
 
+// Fungsi Helper: Cek apakah nama customer sudah ada
+int isNameExists(char* name) {
+    FILE *file = fopen(FILE_NAME, "rb");
+    Order temp;
+    
+    if (file == NULL) return 0; // File belum ada, nama pasti tidak ada
+    
+    while (fread(&temp, sizeof(Order), 1, file)) {
+        if (strcmp(temp.customerName, name) == 0) {
+            fclose(file);
+            return 1; // Nama sudah ada
+        }
+    }
+    fclose(file);
+    return 0; // Nama belum ada
+}
+
 // FITUR 1: Terima Order Baru
 void createOrder() {
     Order newOrder;
@@ -44,7 +61,20 @@ void createOrder() {
     clearScreen();
     printf("===== TERIMA ORDER BARU C-LAUNDRY APP =====\n");
     
-    printf("Nama Pelanggan : "); scanf(" %[^\n]", newOrder.customerName);    
+    // Input nama customer dengan pengecekan duplikasi
+    int nameValid = 0;
+    while (!nameValid) {
+        printf("Nama Pelanggan : "); 
+        scanf(" %[^\n]", newOrder.customerName);
+        
+        // Cek apakah nama sudah ada
+        if (isNameExists(newOrder.customerName)) {
+            printf("\n[ERROR] Nama '%s' sudah digunakan!\n", newOrder.customerName);
+            printf("Tolong ganti nama karena sudah digunakan.\n\n");
+        } else {
+            nameValid = 1; // Nama valid, keluar dari loop
+        }
+    }    
     printf("NO HP (62...)  : "); scanf(" %[^\n]", newOrder.phoneNumber);
 
     printf("\n--- DAFTAR LAYANAN ---\n");
