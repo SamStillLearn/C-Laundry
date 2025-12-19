@@ -29,6 +29,23 @@ void clearScreen() {
     #endif
 }
 
+// Fungsi Helper: Cek apakah nama customer sudah ada
+int isNameExists(char* name) {
+    FILE *file = fopen(FILE_NAME, "rb");
+    Order temp;
+    
+    if (file == NULL) return 0; // File belum ada, nama pasti tidak ada
+    
+    while (fread(&temp, sizeof(Order), 1, file)) {
+        if (strcmp(temp.customerName, name) == 0) {
+            fclose(file);
+            return 1; // Nama sudah ada
+        }
+    }
+    fclose(file);
+    return 0; // Nama belum ada
+}
+
 // FITUR 1: Terima Order Baru
 void createOrder() {
     Order newOrder;
@@ -42,9 +59,22 @@ void createOrder() {
     }
 
     clearScreen();
-    printf("===== TERIMA ORDER BARU RUMAH LAUNDRY 76 =====\n");
+    printf("===== TERIMA ORDER BARU C-LAUNDRY APP =====\n");
     
-    printf("Nama Pelanggan : "); scanf(" %[^\n]", newOrder.customerName);    
+    // Input nama customer dengan pengecekan duplikasi
+    int nameValid = 0;
+    while (!nameValid) {
+        printf("Nama Pelanggan : "); 
+        scanf(" %[^\n]", newOrder.customerName);
+        
+        // Cek apakah nama sudah ada
+        if (isNameExists(newOrder.customerName)) {
+            printf("\n[ERROR] Nama '%s' sudah digunakan!\n", newOrder.customerName);
+            printf("Tolong ganti nama karena sudah digunakan.\n\n");
+        } else {
+            nameValid = 1; // Nama valid, keluar dari loop
+        }
+    }    
     printf("NO HP (62...)  : "); scanf(" %[^\n]", newOrder.phoneNumber);
 
     printf("\n--- DAFTAR LAYANAN ---\n");
@@ -149,7 +179,7 @@ void updateStatus(){
 
     clearScreen();
     printf("=== UPDATE STATUS PENGERJAAN ===\n");
-    printf("Masukkan Nama Customer: "); scanf("%s", namaCustomer);
+    printf("Masukkan Nama Customer: "); scanf(" %[^\n]", namaCustomer);
       while (fread(&uS, sizeof(Order), 1, file)) {
         if (strcmp(uS.customerName, namaCustomer) == 0) {
             found = 1;
@@ -230,10 +260,11 @@ void completeOrder() {
     clearScreen();
     printf("=== AMBIL / SELESAIKAN ORDER ===\n");
     printf("Masukkan Nama Customer: ");
-    scanf(" %[^\n]", searchName);   // ← BISA SPASI, AMAN
+    scanf(" %[^\n]", searchName);
 
     while (fread(&order, sizeof(Order), 1, file)) {
 
+        // Cek nama DAN pastikan status belum COMPLETED
         if (strcmp(order.customerName, searchName) == 0 && order.status != COMPLETED) {
             found = 1;
 
@@ -244,25 +275,44 @@ void completeOrder() {
             printf("Status : %s\n", getstatusString(order.status));
             printf("Total  : Rp %.0f\n", order.totalPrice);
 
+            // Validasi: Apakah cucian sudah siap?
             if (order.status != READY) {
-                printf("\n[PERINGATAN] Laundry belum siap diambil!\n");
+                printf("\n[PERINGATAN] Laundry belum siap diambil! Status masih: %s\n", getstatusString(order.status));
+                // Data tetap ditulis ke temp tanpa perubahan status
             } else {
+                // 1. Ubah Status
                 order.status = COMPLETED;
                 printf("\n[SUKSES] Laundry telah diambil & order diselesaikan.\n");
+
+                // --- BAGIAN INI YANG SEBELUMNYA HILANG ---
+                // 2. Siapkan Pesan WhatsApp
+                char msgWA[500];
+                // Gunakan %%0A untuk Enter (Garis Baru)
+                sprintf(msgWA, "Halo *%s*, Terima Kasih!%%0A"
+                               "Laundry Anda telah diambil.%%0A"
+                               "Total Bayar: Rp %.0f%%0A"
+                               "Status: _SELESAI_.", 
+                               order.customerName, order.totalPrice);
+                
+                // 3. Panggil Fungsi Kirim
+                sendWhatsApp(order.phoneNumber, msgWA);
+                // ------------------------------------------
             }
         }
 
+        // Tulis data (baik yang diubah maupun tidak) ke file temp
         fwrite(&order, sizeof(Order), 1, temp);
     }
 
     fclose(file);
     fclose(temp);
 
+    // Timpa file lama dengan file baru
     remove(FILE_NAME);
     rename(TEMP_FILE, FILE_NAME);
 
     if (!found) {
-        printf("\n[ERROR] Nama customer tidak ditemukan.\n");
+        printf("\n[ERROR] Nama customer tidak ditemukan atau pesanan sudah selesai sebelumnya.\n");
     }
 
     printf("\nTekan Enter kembali ke menu...");
