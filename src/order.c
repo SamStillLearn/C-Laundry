@@ -15,6 +15,7 @@ const char* getstatusString(Status s) {
         case IRONING: return "DISETRIKA";
         case READY: return "SIAP DIAMBIL";
         case COMPLETED: return "SELESAI";
+        case CANCELED: return "DIBATALKAN";
         default: return "UNKNOWN";
     }
 
@@ -171,32 +172,74 @@ void createOrder() {
 void updateStatus(){
     FILE *file = fopen(FILE_NAME, "rb");
     FILE *temp = fopen(TEMP_FILE, "wb");
-    Order uS; //us adalah order update status
-    char namaCustomer[20];
+    Order uS;
+    char namaCustomer[50];
     int found = 0;
 
-    if (!file || !temp) return;
+    if (!file || !temp){
+        printf("Gagal membuka file data.\n");
+        printf("Tekan Enter...");
+        getchar(); getchar();
+        return;
+    }
 
     clearScreen();
     printf("=== UPDATE STATUS PENGERJAAN ===\n");
-    printf("Masukkan Nama Customer: "); scanf(" %[^\n]", namaCustomer);
-      while (fread(&uS, sizeof(Order), 1, file)) {
+    printf("Masukkan Nama Customer: ");
+    scanf(" %[^\n]", namaCustomer);
+
+    while (fread(&uS, sizeof(Order), 1, file)) {
+
         if (strcmp(uS.customerName, namaCustomer) == 0) {
             found = 1;
-            printf("\nData Ditemukan: %s (%s)\n", uS.customerName, getstatusString(uS.status));
-            printf("Update Status ke:\n1. DICUCI\n2. DISETRIKA\n3. SIAP DIAMBIL\nPilih: ");
+
+            printf("\nData Ditemukan!\n");
+            printf("Nama   : %s\n", uS.customerName);
+            printf("Status : %s\n", getstatusString(uS.status));
+
+            printf("\nUpdate Status ke:\n");
+            printf("1. DICUCI\n");
+            printf("2. DISETRIKA\n");
+            printf("3. SIAP DIAMBIL\n");
+            printf("4. BATALKAN ORDER\n");
+            printf("Pilih: ");
+
             int pil;
             scanf("%d", &pil);
-             if (pil == 1) uS.status = WASHING;
+
+            if (pil == 1) uS.status = WASHING;
             else if (pil == 2) uS.status = IRONING;
             else if (pil == 3) uS.status = READY;
-            
-            // Kirim Notifikasi Update ke whatsapp
-            char message[200];
-            sprintf(message, "Halo %s.%%0A"
-               "Status laundry Anda sekarang: _%s._", uS.customerName, getstatusString(uS.status));
-            sendWhatsApp(uS.phoneNumber, message);
+            else if (pil == 4) {
+                uS.status = CANCELED;
+                printf("\n[INFO] Order telah DIBATALKAN.\n");
+
+                char msgWA[300];
+                sprintf(msgWA,
+                    "Halo *%s*,%%0A"
+                    "Maaf, order laundry Anda telah *DIBATALKAN*.%%0A"
+                    "Jika ini kesalahan, silakan hubungi kami kembali.",
+                    uS.customerName
+                );
+
+                sendWhatsApp(uS.phoneNumber, msgWA);
+            } 
+            else {
+                printf("\n[ERROR] Pilihan tidak valid. Status tidak berubah.\n");
+            }
+
+            // Jika bukan cancel saja tetap kirim notif perubahan
+            if (pil != 4){
+                char message[200];
+                sprintf(message,
+                    "Halo %s.%%0AStatus laundry Anda sekarang: _%s_.",
+                    uS.customerName,
+                    getstatusString(uS.status)
+                );
+                sendWhatsApp(uS.phoneNumber, message);
+            }
         }
+
         fwrite(&uS, sizeof(Order), 1, temp);
     }
 
@@ -206,11 +249,12 @@ void updateStatus(){
     remove(FILE_NAME);
     rename(TEMP_FILE, FILE_NAME);
 
-    if (found) printf("\n[SUCCESS] Status berhasil diupdate!\n");
-    else printf("\n[ERROR] nama tidak ditemukan.\n");
-    
+    if (found) printf("\n[SUCCESS] Status berhasil diproses!\n");
+    else printf("\n[ERROR] Nama customer tidak ditemukan.\n");
+
     getchar(); getchar();
 }
+
 
 // --- FITUR 3: LIHAT SEMUA DATA ---
 void viewOrders() {

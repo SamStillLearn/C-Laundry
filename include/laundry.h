@@ -16,7 +16,8 @@ typedef enum {
     WASHING,    // 1: Sedang Dicuci
     IRONING,    // 2: Sedang Disetrika
     READY,      // 3: Siap Diambil
-    COMPLETED   // 4: Selesai/Diambil
+    COMPLETED,  // 4: Selesai/Diambil
+    CANCELED    // 5: Cancel
 } Status;
 
 // Struktur Data Utama
