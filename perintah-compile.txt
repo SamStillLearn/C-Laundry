@@ -1,2 +1,5 @@
 Paste di terminal tiap lakuin perubahan:
-gcc src/main.c src/order.c -I./include -o laundry_app.exe
+gcc src/main.c src/order.c -I./include -o C-Laundry_app.exe
+
+Paste ini kalau mau jalanin aplikasinya
+./laundry_app.exe

@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 // Definisi Konstanta
 #define FILE_NAME "data/orders.dat"
@@ -26,7 +27,7 @@ typedef struct {
     char customerName[50];
     char phoneNumber[15];
     float weight;
-    int serviceType; // 1: Cuci Kering, 2: Cuci Komplit, 3: Express, 4: Coming soon fitur lain
+    int serviceType;
     float totalPrice;
     Status status;
     char date_in[20];
